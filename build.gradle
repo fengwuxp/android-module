@@ -1,0 +1,178 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+
+buildscript {
+
+    repositories {
+        // maven { url "http://mvnrepo.alibaba-inc.com/mvn/repository" }
+        maven{ url "http://maven.aliyun.com/nexus/content/groups/public/"}
+        jcenter()
+        mavenLocal()
+        //  google()
+        maven { url "https://jitpack.io" }
+        mavenCentral()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+    }
+
+
+    dependencies {
+
+        classpath 'com.android.tools.build:gradle:3.5.2'
+
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1' // Add this line
+
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+
+        classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.0'  //添加这一行
+
+        // 远程布署插件
+        classpath 'org.hidetake:gradle-ssh-plugin:1.0.1'
+
+        classpath 'com.cpdroid:fat-aar:1.1.0'
+
+    }
+
+}
+
+
+ext {
+
+    apply from: 'helper.gradle'
+
+    defaultBuildToolsVersion = Helpers.findRequireInstalledBuildTools("25.3")
+
+
+    cfg = [
+            // SDK And Tools
+            minifyEnabled        : false,
+            minSdkVersion        : 21,
+            targetSdkVersion     : 26,
+            compileSdkVersion    : 26,
+            buildToolsVersion    : defaultBuildToolsVersion,
+            supportLibraryVersion: "25.3.1",
+            mavenDepolyUrl       : "",  //这三个参数请配置在local.properties文件中
+            mavenUserName        : "",  //这三个参数请配置在local.properties文件中
+            mavenUserPassowrd    : "",   //这三个参数请配置在local.properties文件中
+
+            mavenDepolyUrl       : "http://nexus.oaknt.com:18081/repository",
+            mavenUserName        : "deployment",
+            mavenUserPassowrd    : "oak"
+    ]
+
+    println "<<<< " + project.name + "  --- supportLibraryVersion: " + cfg.supportLibraryVersion + " --- BuildToolsVersion: " + cfg.buildToolsVersion + " >>>> "
+
+}
+
+def localProps = new File("local.properties");
+if (localProps.exists()) {
+    localProps.withReader { reader ->
+        Properties p = new Properties()
+        p.load(reader)
+
+        p.keySet().each { name ->
+            ext.cfg[name] = p.getProperty(name)
+            println "****** [" + name + "] = " + ext.cfg[name]
+        }
+    }
+}
+
+// 全局配置，对所有工程有效
+allprojects {
+
+//    apply plugin: "java"
+
+    apply plugin: "idea"
+    apply plugin: "maven"
+
+//    apply plugin: 'com.neenbedankt.android-apt'
+
+//    apply plugin: 'com.novoda.bintray-release'
+//    apply plugin: 'com.novoda.bintray-release'
+//    apply plugin: 'com.github.dcendents.android-maven'
+//    apply plugin: 'com.jfrog.bintray'
+
+    group = "com.fengwuxp.android"
+    version = "1.0.0"
+
+
+    repositories {
+        maven {
+            url "http://mvn.mob.com/android"
+        }
+        // maven { url "http://mvnrepo.alibaba-inc.com/mvn/repository" }
+//        mavenLocal()
+        maven{ url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven {
+            url "http://nexus.oaknt.com:18081/repository/maven-public/"
+            credentials {
+                username = "anonymous"
+                password = ""
+            }
+        }
+
+        jcenter()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+
+        //Weex sdk 临时使用
+        //  maven { url "http://dl.bintray.com" }
+
+//        maven {
+        //可以设置为本地库
+        // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+        // url "$rootDir/module_name/libs/android"
+//        }
+
+        //指定全局的目录
+        flatDir {
+            dirs 'libs'
+        }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+//默认发布到Maven Nexus私服的发行库
+
+    uploadArchives {
+
+        repositories {
+            mavenDeployer {
+
+                //上传资源到Maven私服
+
+                snapshotRepository(url: "$cfg.mavenDepolyUrl/maven-snapshots/") {
+                    authentication(userName: "$cfg.mavenUserName", password: "$cfg.mavenUserPassowrd")
+                }
+
+                repository(url: "$cfg.mavenDepolyUrl/maven-releases/") {
+                    authentication(userName: "$cfg.mavenUserName", password: "$cfg.mavenUserPassowrd")
+                }
+
+                pom.version = "$project.version"
+                pom.artifactId = "$project.name"
+                pom.groupId = "$project.group"
+            }
+
+        }
+
+    }
+
+
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, java.util.concurrent.TimeUnit.MINUTES
+    }
+
+
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
