@@ -14,6 +14,9 @@ buildscript {
             url 'https://maven.google.com/'
             name 'Google'
         }
+        flatDir {
+            dirs 'libs'
+        }
     }
     dependencies {
         classpath "com.mob.sdk:MobSDK:2018.0319.1724"
@@ -76,5 +79,6 @@ dependencies {
     compileOnly "cn.sharesdk:ShareSDK-SinaWeibo:${shareSDKVersion}"
     compileOnly "cn.sharesdk:ShareSDK-SinaWeibo:${shareSDKVersion}"
 
+    compileOnly(name: 'alipaySdk-15.6.5-20190718211159-noUtdid', ext: 'aar')
 // PLUGIN GRADLE EXTENSIONS END
 }

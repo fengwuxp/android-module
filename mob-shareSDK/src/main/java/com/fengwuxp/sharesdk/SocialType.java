@@ -1,5 +1,7 @@
 package com.fengwuxp.sharesdk;
 
+import com.fengwuxp.alipay.AlipayPlatform;
+
 import cn.sharesdk.alipay.friends.Alipay;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.system.email.Email;
@@ -77,7 +79,7 @@ public enum SocialType {
     /**
      * 支付宝
      */
-    ALI_PAY(Alipay.NAME);
+    ALI_PAY(AlipayPlatform.NAME);
 
     private String name;
 

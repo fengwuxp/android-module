@@ -1,6 +1,7 @@
 package com.fengwuxp.sharesdk;
 
 import android.app.Activity;
+import android.text.TextUtils;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
@@ -23,46 +24,48 @@ public class PlatformAuthorizeUserInfoManager {
     }
 
 
-    public void aliPayAuthorize() {
-        doAuthorize(SocialType.ALI_PAY, this.activity, this.platformActionListener);
+    public void aliPayAuthorize(String authorizeInfo) {
+        doAuthorize(SocialType.ALI_PAY, authorizeInfo, this.activity, this.platformActionListener);
     }
 
 
-    public void weChatAuthorize() {
+    public void weChatAuthorize(String authorizeInfo) {
         Platform weiXin = ShareSDK.getPlatform(Wechat.NAME);
-        doAuthorize(SocialType.WE_CHAT, this.activity, this.platformActionListener);
+        doAuthorize(SocialType.WE_CHAT, authorizeInfo, this.activity, this.platformActionListener);
     }
 
-    public void sinaAuthorize() {
-        doAuthorize(SocialType.SINA_WEI_BO, this.activity, this.platformActionListener);
+    public void sinaAuthorize(String authorizeInfo) {
+        doAuthorize(SocialType.SINA_WEI_BO, authorizeInfo, this.activity, this.platformActionListener);
     }
 
-    public void tencentWeiBoAuthorize() {
-        doAuthorize(SocialType.TENCENT_WEI_BO, this.activity, this.platformActionListener);
-    }
-
-
-    public void qqShareAuthorize() {
-        doAuthorize(SocialType.QQ, this.activity, this.platformActionListener);
+    public void tencentWeiBoAuthorize(String authorizeInfo) {
+        doAuthorize(SocialType.TENCENT_WEI_BO, authorizeInfo, this.activity, this.platformActionListener);
     }
 
 
-    public void emailAuthorize() {
-        doAuthorize(SocialType.E_MAIL, this.activity, this.platformActionListener);
+    public void qqShareAuthorize(String authorizeInfo) {
+        doAuthorize(SocialType.QQ, authorizeInfo, this.activity, this.platformActionListener);
     }
 
-    public void textAuthorize() {
-        doAuthorize(SocialType.SHORE_MESSAGE, this.activity, this.platformActionListener);
+
+    public void emailAuthorize(String authorizeInfo) {
+        doAuthorize(SocialType.E_MAIL, authorizeInfo, this.activity, this.platformActionListener);
+    }
+
+    public void textAuthorize(String authorizeInfo) {
+        doAuthorize(SocialType.SHORE_MESSAGE, authorizeInfo, this.activity, this.platformActionListener);
     }
 
     /**
      * 授权
      *
      * @param socialType
-     * @param activity
+     * @param authorizeInfo
      * @param listener
      */
-    public void doAuthorize(SocialType socialType, Activity activity, PlatformActionListener listener) {
+    public void doAuthorize(SocialType socialType,
+                            String authorizeInfo,
+                            Activity activity, PlatformActionListener listener) {
         Platform platform = ShareSDK.getPlatform(socialType.getName());
         platform.setPlatformActionListener(listener);
         if (platform.isAuthValid()) {
@@ -71,7 +74,12 @@ public class PlatformAuthorizeUserInfoManager {
             return;
         }
         ShareSDK.setActivity(activity);
-        platform.authorize();
+        ShareSDK.setEnableAuthTag(true);
+        if (TextUtils.isEmpty(authorizeInfo)) {
+            platform.authorize();
+        } else {
+            platform.authorize(new String[]{authorizeInfo});
+        }
     }
 
 
